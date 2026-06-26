@@ -62,6 +62,7 @@ install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mkt
 install_rsync()   { local f; f="$(restore rsync | tail -1)"; local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; dpkg -i "$t"/*.deb || true; echo "rsync: $(rsync --version | head -1)"; }
 install_nats()    { local f; f="$(restore nats | tail -1)";   local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name nats-server -type f | head -1)" "$BINDIR/nats-server"; chmod +x "$BINDIR/nats-server"; echo "nats-server: $("$BINDIR/nats-server" -v)"; }
 install_jq()      { local f; f="$(restore jq | tail -1)";     local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name jq -type f | head -1)" "$BINDIR/jq"; chmod +x "$BINDIR/jq"; echo "jq: $("$BINDIR/jq" --version)"; }
+install_typst()   { local f; f="$(restore typst | tail -1)";  local t; t="$(mktemp -d)"; tar xf "$f" -C "$t" --strip-components=1; cp "$t/typst" "$BINDIR/typst"; chmod +x "$BINDIR/typst"; echo "typst: $("$BINDIR/typst" --version)"; }
 install_firebird5_client() {
   # CLIENTE Firebird 5 (libfbclient + headers + firebird.msg) para o LINK do engine.
   # Diferente da receita 'firebird' (que instala .deb do FB3 server+client via dpkg), esta só
