@@ -4,6 +4,32 @@ Toolchains **pinados e vendorizados** do ecossistema. Os binários (Zig, Bun, Ch
 Firebird, Docker, gh, rsync, …) ficam versionados aqui, **fatiados em volumes de 5 MB** para o
 git aceitar, com **checksum verificado** na remontagem.
 
+---
+
+## ⚠️ Se algo aqui não funcionar — conserte e abra PR (RCA obrigatório)
+
+Este repo é infra que **bloqueia todos os projetos**. Se você seguiu uma instrução daqui (um
+script, uma receita, um pré-requisito) e ela **não funcionou** — uma receita que quebra, um
+checksum que não bate, um pacote que falta, um passo que pressupõe algo que o ambiente não tem —
+você está **encorajado a corrigir o repositório** e abrir um PR. Não contorne em silêncio no seu
+projeto; o conserto pertence aqui, para todo mundo herdar.
+
+A **mensagem do commit/PR é uma RCA** (Root Cause Analysis), no mesmo rigor de um relatório de bug:
+
+```
+fix(<pkg>): <o que foi consertado em uma linha>
+
+SINTOMA: o que acontecia (erro exato, comando, saída observada).
+CAUSA RAIZ: por que acontecia (o mecanismo real, não o palpite).
+SOLUÇÃO: o que mudou e por que isso resolve a causa, não o sintoma.
+IMPACTO: o que mais isso afeta (outros pacotes, CI, ambientes).
+```
+
+Um bug no toolchain é um bug do repositório — trate como tal: reproduza, ache a causa,
+conserte, documente a RCA no commit, abra o PR. "Não funcionou aqui" sem RCA não ajuda ninguém.
+
+---
+
 ## Por quê
 
 Todo ambiente — sandbox, CI, máquina nova — re-baixava toolchains via `apt`/`curl` a cada vez:
@@ -24,6 +50,10 @@ toolchain quando precisam.
 O `install.sh` **não baixa nada** — mas precisa de utilitários básicos para extrair e instalar:
 
 - `bash`, `tar`, `unzip`, `sha256sum`, `find`, `dpkg` (este só para o Firebird).
+
+> `jq` é **required** pelas receitas, mas é fornecido pelo próprio toolchain (`install.sh jq`) —
+> não precisa instalá-lo por fora. Se for usar uma receita que dependa de `jq` num ambiente
+> pelado, rode `install.sh jq` primeiro.
 - Permissão de escrita em `/opt/toolchain` e `/usr/local/bin` (na prática: **rodar como root**,
   como no sandbox e na imagem de CI). Para instalar sem root, veja as variáveis abaixo.
 
@@ -150,6 +180,7 @@ deixe o test runner (pytest/conftest) gerenciar o ciclo de vida do servidor numa
 | gh | 2.63.2 | github cli (tar.gz) | copia `gh` para `$TOOLCHAIN_BINDIR` |
 | rsync | 3.2.7 | Ubuntu noble (.deb + libs) | `dpkg -i` rsync+libpopt+libxxhash+libzstd+liblz4 |
 | nats | 2.10.22 | github nats-io (tar.gz) | copia `nats-server` para `$TOOLCHAIN_BINDIR` (JetStream — exigido pelo eco00-platform) |
+| jq | 1.7.1 | github jqlang (binário estático) | copia `jq` para `$TOOLCHAIN_BINDIR` |
 
 Todos com ciclo fatia→remonta→checksum provado, e install validado (zig/bun/gh/docker/chromium
 instalam num prefix limpo; firebird/rsync via dpkg seguem o mesmo padrão do apt).

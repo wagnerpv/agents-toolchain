@@ -59,6 +59,7 @@ install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mkt
 # rsync vem como .deb(s) (binário + libs) — instala via dpkg, igual ao firebird.
 install_rsync()   { local f; f="$(restore rsync | tail -1)"; local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; dpkg -i "$t"/*.deb || true; echo "rsync: $(rsync --version | head -1)"; }
 install_nats()    { local f; f="$(restore nats | tail -1)";   local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name nats-server -type f | head -1)" "$BINDIR/nats-server"; chmod +x "$BINDIR/nats-server"; echo "nats-server: $("$BINDIR/nats-server" -v)"; }
+install_jq()      { local f; f="$(restore jq | tail -1)";     local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name jq -type f | head -1)" "$BINDIR/jq"; chmod +x "$BINDIR/jq"; echo "jq: $("$BINDIR/jq" --version)"; }
 
 install_one() {
   case "$1" in
@@ -70,6 +71,7 @@ install_one() {
     gh)        install_gh ;;
     rsync)     install_rsync ;;
     nats)      install_nats ;;
+    jq)        install_jq ;;
     *) echo "receita desconhecida: $1" >&2; return 1 ;;
   esac
 }
