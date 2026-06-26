@@ -193,6 +193,7 @@ deixe o test runner (pytest/conftest) gerenciar o ciclo de vida do servidor numa
 | nats | 2.10.22 | github nats-io (tar.gz) | copia `nats-server` para `$TOOLCHAIN_BINDIR` (JetStream — exigido pelo eco00-platform) |
 | jq | 1.7.1 | github jqlang (binário estático) | copia `jq` para `$TOOLCHAIN_BINDIR` |
 | typst | 0.13.1 | github typst (musl tar.xz) | copia `typst` para `$TOOLCHAIN_BINDIR` (geração de PDF no delfweb) |
+| firebird5-client | 5.0.4 | tarball oficial FB5 (libfbclient + headers) | instala o CLIENTE FB5 em `$TOOLCHAIN_PREFIX/firebird5-client` (link do delfweb-engine; servidor vem do container) |
 
 Todos com ciclo fatia→remonta→checksum provado, e install validado (zig/bun/gh/docker/chromium
 instalam num prefix limpo; firebird/rsync via dpkg seguem o mesmo padrão do apt).

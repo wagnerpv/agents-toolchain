@@ -62,7 +62,22 @@ install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mkt
 install_rsync()   { local f; f="$(restore rsync | tail -1)"; local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; dpkg -i "$t"/*.deb || true; echo "rsync: $(rsync --version | head -1)"; }
 install_nats()    { local f; f="$(restore nats | tail -1)";   local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name nats-server -type f | head -1)" "$BINDIR/nats-server"; chmod +x "$BINDIR/nats-server"; echo "nats-server: $("$BINDIR/nats-server" -v)"; }
 install_jq()      { local f; f="$(restore jq | tail -1)";     local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name jq -type f | head -1)" "$BINDIR/jq"; chmod +x "$BINDIR/jq"; echo "jq: $("$BINDIR/jq" --version)"; }
-install_typst()   { local f; f="$(restore typst | tail -1)";  local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name typst -type f | head -1)" "$BINDIR/typst"; chmod +x "$BINDIR/typst"; echo "typst: $("$BINDIR/typst" --version)"; }
+install_firebird5_client() {
+  # CLIENTE Firebird 5 (libfbclient + headers + firebird.msg) para o LINK do engine.
+  # Diferente da receita 'firebird' (que instala .deb do FB3 server+client via dpkg), esta só
+  # entrega o cliente FB5: instala em $PREFIX/firebird5-client e cria symlinks da lib em
+  # $BINDIR/../lib (ou usa LD_LIBRARY_PATH). O servidor FB5 vem do container, não daqui.
+  local f; f="$(restore firebird5-client | tail -1)"
+  local dst="$PREFIX/firebird5-client"
+  rm -rf "$dst"; mkdir -p "$dst"
+  tar xzf "$f" -C "$dst"
+  # symlink da lib num path padrão de linker e ldconfig
+  cp -a "$dst"/lib/libfbclient.so* /usr/local/lib/ 2>/dev/null || true
+  ldconfig 2>/dev/null || true
+  echo "firebird5-client: instalado em $dst"
+  echo "  para compilar: export FIREBIRD_INCLUDE=$dst/include FIREBIRD_LIB=$dst/lib"
+  echo "  libfbclient: $(ls "$dst"/lib/libfbclient.so.5* 2>/dev/null | head -1)"
+}
 
 install_one() {
   case "$1" in
@@ -70,6 +85,7 @@ install_one() {
     bun)       install_bun ;;
     chromium)  install_chromium ;;
     firebird)  install_firebird ;;
+    firebird5-client) install_firebird5_client ;;
     docker)    install_docker ;;
     gh)        install_gh ;;
     rsync)     install_rsync ;;
