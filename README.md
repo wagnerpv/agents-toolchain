@@ -152,6 +152,17 @@ git push
 Para **atualizar a versão** de um pacote: rode o `slice.sh` de novo com o novo arquivo (ele
 limpa os volumes antigos e regrava o `meta.env`), ajuste a versão na tabela abaixo, commit.
 
+### Regra: os scripts são POSIX `sh` (não dependem de bash)
+
+Todos os scripts deste repo têm shebang `#!/bin/sh` e rodam sob `dash` — **sem bashisms**
+(`set -o pipefail`, `[[ ]]`, arrays, `<<<`, `$(( ))`). Motivo: os consumidores (CI, containers
+mínimos) chamam os scripts via `sh`, e nem todo ambiente tem `bash`. Um script que assume bash
+quebra exatamente onde mais importa — no ambiente pelado que o toolchain existe para servir.
+
+Ao escrever uma receita nova em `install.sh`, mantenha-a POSIX e valide sob dash:
+`sh scripts/install.sh <pkg>`. (Esta regra nasceu de uma RCA real: o `restore.sh` tinha
+`set -euo pipefail` com shebang bash e quebrava quando chamado via `sh`/dash.)
+
 ### Verificar a integridade sem instalar
 
 ```sh

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # install.sh — remonta e INSTALA um ou mais pacotes do toolchain. Sem apt, sem curl.
 #
 # Uso:
@@ -10,7 +10,7 @@
 #
 # Objetivo do repo: eliminar apt e curl em todos os projetos. Toda dependência de toolchain
 # vem daqui, com versão pinada e checksum verificado.
-set -euo pipefail
+set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PREFIX="${TOOLCHAIN_PREFIX:-/opt/toolchain}"

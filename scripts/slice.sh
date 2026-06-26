@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # slice.sh — fatia um arquivo grande em volumes de 5MB para versionar no git.
 #
 # Uso: scripts/slice.sh <arquivo> <nome-do-pacote>
@@ -10,7 +10,7 @@
 #
 # Este script roda LOCALMENTE quando se adiciona ou atualiza um toolchain. Os agentes em
 # CI/sandbox usam só o restore.sh (nunca o slice.sh).
-set -euo pipefail
+set -eu
 
 VOLUME_SIZE="${VOLUME_SIZE:-5M}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
