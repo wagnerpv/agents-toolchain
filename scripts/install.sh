@@ -35,7 +35,9 @@ install_bun() {
   unzip -oq "$f" -d "$PREFIX/bun"
   local bin; bin="$(find "$PREFIX/bun" -name bun -type f | head -1)"
   ln -sf "$bin" "$BINDIR/bun"
-  echo "bun: $("$BINDIR/bun" --version)"
+  # bunx é o próprio bun invocado com outro nome (alias) — cria o symlink.
+  ln -sf "$bin" "$BINDIR/bunx"
+  echo "bun: $("$BINDIR/bun" --version)  (bunx: alias)"
 }
 
 install_chromium() {
