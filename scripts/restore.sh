@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # restore.sh — remonta um pacote vendorizado a partir dos volumes e verifica o sha256.
 #
 # Uso: scripts/restore.sh <nome-do-pacote> [destino]
@@ -10,7 +10,7 @@
 #
 # Este é o script que os agentes/CI usam. NÃO instala — só restaura o arquivo. A instalação
 # fica no install.sh (que chama este).
-set -euo pipefail
+set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
