@@ -58,6 +58,7 @@ install_docker()  { local f; f="$(restore docker | tail -1)"; rm -rf "$PREFIX/do
 install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name gh -type f | head -1)" "$BINDIR/gh"; chmod +x "$BINDIR/gh"; echo "gh: $("$BINDIR/gh" --version | head -1)"; }
 # rsync vem como .deb(s) (binário + libs) — instala via dpkg, igual ao firebird.
 install_rsync()   { local f; f="$(restore rsync | tail -1)"; local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; dpkg -i "$t"/*.deb || true; echo "rsync: $(rsync --version | head -1)"; }
+install_nats()    { local f; f="$(restore nats | tail -1)";   local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name nats-server -type f | head -1)" "$BINDIR/nats-server"; chmod +x "$BINDIR/nats-server"; echo "nats-server: $("$BINDIR/nats-server" -v)"; }
 
 install_one() {
   case "$1" in
@@ -68,6 +69,7 @@ install_one() {
     docker)    install_docker ;;
     gh)        install_gh ;;
     rsync)     install_rsync ;;
+    nats)      install_nats ;;
     *) echo "receita desconhecida: $1" >&2; return 1 ;;
   esac
 }

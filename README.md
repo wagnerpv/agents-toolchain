@@ -149,6 +149,7 @@ deixe o test runner (pytest/conftest) gerenciar o ciclo de vida do servidor numa
 | docker | 27.4.1 | download.docker.com (static) | extrai em `$TOOLCHAIN_PREFIX/docker`, symlink dos binários |
 | gh | 2.63.2 | github cli (tar.gz) | copia `gh` para `$TOOLCHAIN_BINDIR` |
 | rsync | 3.2.7 | Ubuntu noble (.deb + libs) | `dpkg -i` rsync+libpopt+libxxhash+libzstd+liblz4 |
+| nats | 2.10.22 | github nats-io (tar.gz) | copia `nats-server` para `$TOOLCHAIN_BINDIR` (JetStream — exigido pelo eco00-platform) |
 
 Todos com ciclo fatia→remonta→checksum provado, e install validado (zig/bun/gh/docker/chromium
 instalam num prefix limpo; firebird/rsync via dpkg seguem o mesmo padrão do apt).
