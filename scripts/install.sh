@@ -47,13 +47,20 @@ install_chromium() {
   echo "chromium: extraído em ${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}"
 }
 
-install_firebird() {
-  # .deb(s) do firebird server + dev + libfbclient — instala via dpkg (não apt, não baixa nada)
-  local f; f="$(restore firebird | tail -1)"
-  local tmp; tmp="$(mktemp -d)"
-  tar xf "$f" -C "$tmp"
-  dpkg -i "$tmp"/*.deb || true   # resolve ordem de deps entre os .deb locais
-  echo "firebird: .deb(s) instalados"
+install_firebird5_server() {
+  # SERVIDOR Firebird 5 completo (SuperServer) extraído em /opt/firebird5.
+  # É o servidor que ensure-fb.sh do delfweb-engine espera em /opt/firebird5/bin/firebird,
+  # para rodar make e2e / make aa-audit em ambiente de agente SEM Docker.
+  # (O cliente, para LINK, é o firebird5-client; este é o servidor, para RODAR.)
+  local f; f="$(restore firebird5-server | tail -1)"
+  rm -rf /opt/firebird5
+  mkdir -p /opt
+  tar xzf "$f" -C /opt   # o tarball já contém firebird5/ na raiz → vira /opt/firebird5
+  cp -a /opt/firebird5/lib/libfbclient.so* /usr/local/lib/ 2>/dev/null || true
+  cp -a /opt/firebird5/lib/libib_util.so*  /usr/local/lib/ 2>/dev/null || true
+  ldconfig 2>/dev/null || true
+  echo "firebird5-server: instalado em /opt/firebird5"
+  echo "  servidor: /opt/firebird5/bin/firebird (use FIREBIRD_BIN=/opt/firebird5/bin/firebird)"
 }
 
 install_docker()  { local f; f="$(restore docker | tail -1)"; rm -rf "$PREFIX/docker"; mkdir -p "$PREFIX"; tar xf "$f" -C "$PREFIX"; ln -sf "$PREFIX"/docker/* "$BINDIR/"; echo "docker: $("$BINDIR/docker" --version 2>/dev/null || echo instalado)"; }
@@ -85,7 +92,7 @@ install_one() {
     zig)       install_zig ;;
     bun)       install_bun ;;
     chromium)  install_chromium ;;
-    firebird)  install_firebird ;;
+    firebird5-server) install_firebird5_server ;;
     firebird5-client) install_firebird5_client ;;
     docker)    install_docker ;;
     gh)        install_gh ;;
