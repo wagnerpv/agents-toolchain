@@ -54,9 +54,10 @@ install_firebird() {
   echo "firebird: .deb(s) instalados"
 }
 
-install_docker()  { local f; f="$(restore docker | tail -1)";  tar xf "$f" -C "$PREFIX"; ln -sf "$PREFIX"/docker/* "$BINDIR/"; echo "docker instalado"; }
-install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name gh -type f | head -1)" "$BINDIR/gh"; echo "gh: $(gh --version | head -1)"; }
-install_rsync()   { local f; f="$(restore rsync | tail -1)";   local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name rsync -type f | head -1)" "$BINDIR/rsync"; echo "rsync instalado"; }
+install_docker()  { local f; f="$(restore docker | tail -1)"; rm -rf "$PREFIX/docker"; mkdir -p "$PREFIX"; tar xf "$f" -C "$PREFIX"; ln -sf "$PREFIX"/docker/* "$BINDIR/"; echo "docker: $(docker --version 2>/dev/null || echo instalado)"; }
+install_gh()      { local f; f="$(restore gh | tail -1)";      local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; cp "$(find "$t" -name gh -type f | head -1)" "$BINDIR/gh"; chmod +x "$BINDIR/gh"; echo "gh: $(gh --version | head -1)"; }
+# rsync vem como .deb(s) (binário + libs) — instala via dpkg, igual ao firebird.
+install_rsync()   { local f; f="$(restore rsync | tail -1)"; local t; t="$(mktemp -d)"; tar xf "$f" -C "$t"; dpkg -i "$t"/*.deb || true; echo "rsync: $(rsync --version | head -1)"; }
 
 install_one() {
   case "$1" in
