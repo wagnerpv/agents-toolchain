@@ -130,6 +130,14 @@ scripts/restore.sh zig /tmp/zig.tar.xz   # remonta e confere o sha256; imprime o
 
 ---
 
+## Notas operacionais
+
+[`docs/notas-operacionais.md`](docs/notas-operacionais.md) — lições de como operar nos ambientes
+de agente (sandbox/CI). Ex.: processos em background não sobrevivem entre chamadas de shell;
+deixe o test runner (pytest/conftest) gerenciar o ciclo de vida do servidor numa única invocação.
+
+---
+
 ## Pacotes vendorizados
 
 | Pacote | Versão | Origem | Receita |
