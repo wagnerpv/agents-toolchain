@@ -186,14 +186,14 @@ deixe o test runner (pytest/conftest) gerenciar o ciclo de vida do servidor numa
 | zig | 0.15.2 | ziglang.org (tar.xz) | extrai em `$TOOLCHAIN_PREFIX/zig`, symlink `zig` |
 | bun | 1.1.38 | github oven-sh (zip) | extrai em `$TOOLCHAIN_PREFIX/bun`, symlink `bun` |
 | chromium | build 1194 | Playwright (chromium+headless_shell+ffmpeg) | extrai em `$PLAYWRIGHT_BROWSERS_PATH` |
-| firebird | 3.0.11 | Ubuntu noble (.deb x8) | `dpkg -i` server+core+common+utils+dev+libfbclient+libib-util+libtommath |
+| firebird5-server | 5.0.4 | tarball oficial FB5 (SuperServer) | extrai em `/opt/firebird5`; servidor completo para rodar `make e2e`/`aa-audit` sem Docker |
 | docker | 27.4.1 | download.docker.com (static) | extrai em `$TOOLCHAIN_PREFIX/docker`, symlink dos binários |
 | gh | 2.63.2 | github cli (tar.gz) | copia `gh` para `$TOOLCHAIN_BINDIR` |
 | rsync | 3.2.7 | Ubuntu noble (.deb + libs) | `dpkg -i` rsync+libpopt+libxxhash+libzstd+liblz4 |
 | nats | 2.10.22 | github nats-io (tar.gz) | copia `nats-server` para `$TOOLCHAIN_BINDIR` (JetStream — exigido pelo eco00-platform) |
 | jq | 1.7.1 | github jqlang (binário estático) | copia `jq` para `$TOOLCHAIN_BINDIR` |
 | typst | 0.13.1 | github typst (musl tar.xz) | copia `typst` para `$TOOLCHAIN_BINDIR` (geração de PDF no delfweb) |
-| firebird5-client | 5.0.4 | tarball oficial FB5 (libfbclient + headers) | instala o CLIENTE FB5 em `$TOOLCHAIN_PREFIX/firebird5-client` (link do delfweb-engine; servidor vem do container) |
+| firebird5-client | 5.0.4 | tarball oficial FB5 (libfbclient + headers) | instala o CLIENTE FB5 em `$TOOLCHAIN_PREFIX/firebird5-client` (link do delfweb-engine) |
 
 Todos com ciclo fatia→remonta→checksum provado, e install validado (zig/bun/gh/docker/chromium
-instalam num prefix limpo; firebird/rsync via dpkg seguem o mesmo padrão do apt).
+instalam num prefix limpo; rsync via dpkg segue o mesmo padrão do apt).
