@@ -1,57 +1,140 @@
 # agents-toolchain
 
 Toolchains **pinados e vendorizados** do ecossistema. Os binários (Zig, Bun, Chromium,
-Firebird, Docker, gh, rsync, …) ficam versionados aqui, **fatiados em volumes de 5MB** para o
-git aceitar, com checksum verificado na remontagem.
+Firebird, Docker, gh, rsync, …) ficam versionados aqui, **fatiados em volumes de 5 MB** para o
+git aceitar, com **checksum verificado** na remontagem.
 
 ## Por quê
 
 Todo ambiente — sandbox, CI, máquina nova — re-baixava toolchains via `apt`/`curl` a cada vez:
-lento, frágil, e sujeito a sumiço de versão upstream. Aqui as versões são **pinadas** e os
+lento, frágil e sujeito a sumiço de versão upstream. Aqui as versões são **pinadas** e os
 binários **versionados**. `git clone` sempre funciona; download externo, não necessariamente.
 
 **Objetivo: eliminar `apt` e `curl` por completo em todos os projetos.** Toda dependência de
 toolchain vem daqui.
 
-Por que repo separado: binários incham o `.git` para sempre (a história nunca esquece blobs).
-Isolando aqui, os repos de código (delfweb-engine, etc.) ficam leves e clonam o toolchain quando
-precisam.
+Repo separado de propósito: binários incham o `.git` para sempre (a história nunca esquece
+blobs). Isolando aqui, os repos de código (delfweb-engine, etc.) ficam leves e só clonam o
+toolchain quando precisam.
 
-## Uso (em qualquer projeto / CI / sandbox)
+---
+
+## Pré-requisitos
+
+O `install.sh` **não baixa nada** — mas precisa de utilitários básicos para extrair e instalar:
+
+- `bash`, `tar`, `unzip`, `sha256sum`, `find`, `dpkg` (este só para o Firebird).
+- Permissão de escrita em `/opt/toolchain` e `/usr/local/bin` (na prática: **rodar como root**,
+  como no sandbox e na imagem de CI). Para instalar sem root, veja as variáveis abaixo.
+
+Esses utilitários vêm na base de qualquer Ubuntu/Debian mínimo — não são toolchain, são o
+esqueleto do SO. O repo elimina o `apt`/`curl` **das dependências de projeto**, não do `coreutils`.
+
+---
+
+## Uso — instalar um toolchain
 
 ```sh
 git clone https://github.com/wagnerpv/agents-toolchain
-# instala um toolchain (remonta volumes + verifica sha256 + instala — sem apt, sem curl):
-agents-toolchain/scripts/install.sh zig
-# ou tudo de uma vez:
-agents-toolchain/scripts/install.sh all
+cd agents-toolchain
+
+# um pacote:
+sudo scripts/install.sh zig
+
+# vários:
+sudo scripts/install.sh zig bun chromium
+
+# tudo que está vendorizado:
+sudo scripts/install.sh all
 ```
+
+`install.sh` para cada pacote: remonta os volumes → confere o sha256 → extrai/instala →
+cria o symlink. Se o checksum não bater, aborta sem instalar.
+
+### Em CI (exemplo GitHub Actions)
+
+```yaml
+- name: Toolchain (sem apt, sem curl)
+  run: |
+    git clone --depth 1 https://github.com/wagnerpv/agents-toolchain /tmp/tc
+    /tmp/tc/scripts/install.sh zig chromium
+```
+
+### Variáveis de ambiente (opcionais)
+
+| Variável | Default | Para quê |
+|---|---|---|
+| `TOOLCHAIN_PREFIX` | `/opt/toolchain` | onde os toolchains são extraídos |
+| `TOOLCHAIN_BINDIR` | `/usr/local/bin` | onde os symlinks são criados (use um dir gravável p/ instalar sem root) |
+| `PLAYWRIGHT_BROWSERS_PATH` | `/opt/pw-browsers` | destino do Chromium |
+| `VOLUME_SIZE` | `5M` | tamanho do volume ao **fatiar** (slice.sh) |
+
+Instalar sem root, por exemplo:
+```sh
+TOOLCHAIN_PREFIX=$HOME/.toolchain TOOLCHAIN_BINDIR=$HOME/.local/bin scripts/install.sh zig
+```
+
+---
 
 ## Estrutura
 
 ```
-vendor/<pkg>/<pkg>.part.aaa, .aab, ...   volumes de 5MB do arquivo original
+vendor/<pkg>/<pkg>.part.aaa, .aab, ...   volumes de 5 MB do arquivo original
 vendor/<pkg>/meta.env                    versão, sha256, nº de partes, nome original
-scripts/slice.sh                         fatia um arquivo em volumes (uso LOCAL, ao adicionar/atualizar)
-scripts/restore.sh                       remonta + verifica sha256 → caminho do arquivo
+scripts/slice.sh                         fatia um arquivo em volumes  (uso LOCAL, ao adicionar/atualizar)
+scripts/restore.sh                       remonta + verifica sha256 → imprime o caminho do arquivo
 scripts/install.sh                       restore + instala (receita por pacote)
 ```
 
-## Adicionar ou atualizar um toolchain (uso local)
+`restore.sh` é o tijolo: remonta e valida. `install.sh` chama o `restore.sh` e aplica a
+**receita** do pacote (como extrair, onde colocar, qual symlink). Agentes/CI usam só
+`install.sh` (ou `restore.sh`, se quiserem só o arquivo). `slice.sh` é exclusivo do mantenedor.
+
+---
+
+## Adicionar ou atualizar um toolchain
+
+Duas etapas: (1) fatiar o arquivo oficial, (2) escrever a receita de instalação.
 
 ```sh
-# 1. obtenha o arquivo oficial UMA vez (a única hora em que se baixa algo)
-# 2. fatie:
+# 1. obtenha o arquivo oficial UMA vez (a única hora em que se baixa algo, na máquina do mantenedor)
+#    ex.: zig-x86_64-linux-0.15.2.tar.xz, bun-linux-x64.zip, etc.
+
+# 2. fatie em volumes + gere o meta.env (versão/sha256/partes):
 scripts/slice.sh /caminho/zig-x86_64-linux-0.15.2.tar.xz zig
-# 3. commit:
-git add vendor/zig && git commit -m "vendor: zig 0.15.2"
+
+# 3. escreva a receita no scripts/install.sh — uma função install_<pkg>() que opera SÓ sobre
+#    o arquivo restaurado (nunca baixa). Registre o case no dispatch install_one().
+#    Exemplo (zig):
+#      install_zig() {
+#        local f; f="$(restore zig | tail -1)"
+#        rm -rf "$PREFIX/zig"; mkdir -p "$PREFIX/zig"
+#        tar xf "$f" -C "$PREFIX/zig" --strip-components=1
+#        ln -sf "$PREFIX/zig/zig" "$BINDIR/zig"
+#      }
+
+# 4. commit (volumes + meta.env + receita):
+git add vendor/zig scripts/install.sh README.md
+git commit -m "vendor: zig 0.15.2"
+git push
 ```
 
-A receita de instalação de cada pacote vive em `scripts/install.sh` (como extrair, onde colocar,
-qual symlink criar). Pacote novo = volumes + meta.env + uma função `install_<pkg>` na receita.
+Para **atualizar a versão** de um pacote: rode o `slice.sh` de novo com o novo arquivo (ele
+limpa os volumes antigos e regrava o `meta.env`), ajuste a versão na tabela abaixo, commit.
 
-## Pacotes
+### Verificar a integridade sem instalar
 
-| Pacote | Versão | Receita |
-|---|---|---|
-| zig | 0.15.2 | extrai em /opt/toolchain/zig, symlink /usr/local/bin/zig |
+```sh
+scripts/restore.sh zig /tmp/zig.tar.xz   # remonta e confere o sha256; imprime o caminho
+```
+
+---
+
+## Pacotes vendorizados
+
+| Pacote | Versão | Origem | Receita |
+|---|---|---|---|
+| zig | 0.15.2 | ziglang.org (tar.xz) | extrai em `$TOOLCHAIN_PREFIX/zig`, symlink `zig` |
+
+**A vendorizar** (planejado): bun, chromium (Playwright), firebird (.deb server+dev+libfbclient),
+docker, gh, rsync. Cada um entra com volumes + `meta.env` + função `install_<pkg>` na receita.
