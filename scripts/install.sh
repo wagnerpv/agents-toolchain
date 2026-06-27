@@ -49,15 +49,16 @@ install_chromium() {
 
 install_firebird5_server() {
   # SERVIDOR Firebird 5 completo (SuperServer) extraído em /opt/firebird5.
+  # O tarball inclui libtomcrypt.so.1 (dep runtime do binário) para evitar apt no CI.
   # É o servidor que ensure-fb.sh do delfweb-engine espera em /opt/firebird5/bin/firebird,
   # para rodar make e2e / make aa-audit em ambiente de agente SEM Docker.
-  # (O cliente, para LINK, é o firebird5-client; este é o servidor, para RODAR.)
   local f; f="$(restore firebird5-server | tail -1)"
   rm -rf /opt/firebird5
   mkdir -p /opt
   tar xzf "$f" -C /opt   # o tarball já contém firebird5/ na raiz → vira /opt/firebird5
-  cp -a /opt/firebird5/lib/libfbclient.so* /usr/local/lib/ 2>/dev/null || true
-  cp -a /opt/firebird5/lib/libib_util.so*  /usr/local/lib/ 2>/dev/null || true
+  cp -a /opt/firebird5/lib/libfbclient.so*  /usr/local/lib/ 2>/dev/null || true
+  cp -a /opt/firebird5/lib/libib_util.so*   /usr/local/lib/ 2>/dev/null || true
+  cp -a /opt/firebird5/lib/libtomcrypt.so*  /usr/local/lib/ 2>/dev/null || true
   ldconfig 2>/dev/null || true
   echo "firebird5-server: instalado em /opt/firebird5"
   echo "  servidor: /opt/firebird5/bin/firebird (use FIREBIRD_BIN=/opt/firebird5/bin/firebird)"
