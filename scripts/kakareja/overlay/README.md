@@ -15,7 +15,7 @@ bun run runner.ts roteiro.yml  # roda qualquer roteiro
 - `runner.ts` — runner que lê o roteiro YAML e executa via Playwright
 - `primitives.ts` — funções de overlay (introModal, caption, highlight, clickAnim, reaction)
 - `demo-pesquisa.yml` — roteiro de exemplo
-- `demo.html` — página HTML de exemplo (substitua pela URL real da aplicação)
+- `fixtures/demo.html` — página HTML de exemplo (substitua pela URL real da aplicação)
 
 ## Assets de áudio
 
@@ -28,7 +28,7 @@ Colocar em `assets/`:
 ```yaml
 demo:
   title: "Título da demo"
-  page: "caminho/para/demo.html"   # ou URL HTTP
+  page: "fixtures/demo.html"   # ou URL HTTP real da aplicação
   out: "/tmp/saida"
 
 steps:
