@@ -1,0 +1,32 @@
+# POC 2 — Overlay + Áudio + End Card
+# Adiciona trilha sonora e end card estilo Looney Tunes
+
+demo:
+  title: "Demonstração da\nFuncionalidade de Pesquisa"
+  page: "../demo.html"
+  out: "/tmp/poc2-out"
+  audio: true
+  assets: "../assets"
+  endcard: true
+
+steps:
+  - intro:
+      lines:
+        - "Demonstração com overlay DOM, áudio de fundo e end card."
+
+  - caption: "Digitando termo de pesquisa..."
+  - highlight: "#filtro"
+  - wait: 600
+  - type:
+      target: "#filtro"
+      text: "Bruno"
+  - wait: 800
+
+  - caption: "Clicando no botão Filtrar..."
+  - highlight: "#btn-filtro"
+  - click: "#btn-filtro"
+  - wait: 1000
+
+  - caption: 'Resultado: apenas clientes com "Bruno" são exibidos.'
+  - wait: 2000
+  - clear_caption

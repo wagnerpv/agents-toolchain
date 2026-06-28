@@ -1,0 +1,30 @@
+# POC 1 — Overlay DOM (sem áudio)
+# Prova de conceito: legendas, highlight, animação de clique, intro countdown
+
+demo:
+  title: "Demonstração da\nFuncionalidade de Pesquisa"
+  page: "../demo.html"
+  out: "/tmp/poc1-out"
+  audio: false
+
+steps:
+  - intro:
+      lines:
+        - "Demonstração do overlay DOM via Playwright."
+
+  - caption: "Digitando termo de pesquisa..."
+  - highlight: "#filtro"
+  - wait: 600
+  - type:
+      target: "#filtro"
+      text: "Bruno"
+  - wait: 800
+
+  - caption: "Clicando no botão Filtrar..."
+  - highlight: "#btn-filtro"
+  - click: "#btn-filtro"
+  - wait: 1000
+
+  - caption: 'Resultado: apenas clientes com "Bruno" são exibidos.'
+  - wait: 2000
+  - clear_caption
