@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+  h1 { color: #333; }
+  .filter-bar { display: flex; gap: 10px; margin: 20px 0; }
+  input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+  button { padding: 8px 16px; background: #5b7fa6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; background: white; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #5b7fa6; color: white; }
+  tr:hover { background: #f0f7ff; }
+</style>
+</head>
+<body>
+<h1>Gestão de Clientes</h1>
+<div class="filter-bar">
+  <input id="filtro" type="text" placeholder="Filtrar por nome..." />
+  <button id="btn-filtro">Filtrar</button>
+</div>
+<table>
+  <tr><th>Nome</th><th>Cidade</th><th>Status</th></tr>
+  <tr class="row"><td>Ana Silva</td><td>São Paulo</td><td>Ativo</td></tr>
+  <tr class="row"><td>Bruno Barros</td><td>Recife</td><td>Ativo</td></tr>
+  <tr class="row"><td>Carlos Mota</td><td>Rio de Janeiro</td><td>Inativo</td></tr>
+  <tr class="row"><td>Diana Costa</td><td>Fortaleza</td><td>Ativo</td></tr>
+  <tr class="row"><td>Eduardo Lima</td><td>Belo Horizonte</td><td>Inativo</td></tr>
+</table>
+<script>
+  document.getElementById('btn-filtro').onclick = function() {
+    const v = document.getElementById('filtro').value.toLowerCase();
+    document.querySelectorAll('.row').forEach(r => {
+      r.style.display = r.innerText.toLowerCase().includes(v) ? '' : 'none';
+    });
+  };
+</script>
+</body>
+</html>
